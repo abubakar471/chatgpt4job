@@ -36,7 +36,7 @@ const ChatMainPage = () => {
                 const savedChat = await SaveChats(prompt, currentUser);
 
                 if (savedChat.length > 0) {
-                    const { data, error } = await supabase.from("messages").insert([{user_id: currentUser.id, chat_id: savedChat[0].id, messages: [...messages, userMessage, response.data] }]).select();
+                    const { data, error } = await supabase.from("messages").insert([{ user_id: currentUser.id, chat_id: savedChat[0].id, messages: [...messages, userMessage, response.data] }]).select();
 
                     if (error) {
                         console.log(error);
@@ -76,7 +76,7 @@ const ChatMainPage = () => {
 
     return (
         <>
-            <div className="flex flex-col w-[50%] mx-auto h-full">
+            <div className="relative flex flex-col w-[50%] mx-auto h-full ">
                 <div className="flex-grow">
                     {
                         messages.length > 0 ? (
@@ -105,7 +105,11 @@ const ChatMainPage = () => {
                     }
                 </div>
 
-                <ChatForms currentUser={currentUser} prompt={prompt} setPrompt={setPrompt} isGenerating={isGenerating} handleSubmit={handleSubmit} />
+                <div className="fixed bottom-0 bg-[#f6f6f6] w-full">
+                    <div className="w-[800px] flex items-center justify-center">
+                        <ChatForms currentUser={currentUser} prompt={prompt} setPrompt={setPrompt} isGenerating={isGenerating} handleSubmit={handleSubmit} />
+                    </div>
+                </div>
             </div>
 
         </>

@@ -4,7 +4,7 @@ import AuthUserButton from "@/components/AuthUserButton/AuthUserButton"
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient"
 import axios from "axios"
-import { ExternalLink } from "lucide-react"
+import { Edit, ExternalLink, History } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -52,19 +52,25 @@ const ChatPageLayout = ({ children }) => {
 
     return (
         <div className="w-full flex overflow-hidden">
-            <div className="relative w-2/12 fixed left-0 top-0 h-screen bg-slate-800 text-gray-200 flex flex-col py-4">
+            <div className="w-2/12  fixed left-0 top-0 h-screen bg-slate-800 text-gray-200 hidden lg:flex xl:flex flex-col py-4">
                 <div className="flex-grow px-4">
                     <Link href="/chat" className="flex items-center justify-between gap-x-2 hover:bg-gray-300/10 transition-all duration-300 ease-in-out rounded-md p-2">
                         <div className="flex items-center gap-x-2">
                             <Image src="/mindcase.jpg" width={30} height={30} className="rounded-full" />
                             <p className="text-gray-200">New Chat</p>
                         </div>
-                        <ExternalLink />
+                        <Edit />
                     </Link>
+
+
 
                     {
                         chatList.length > 0 && (
                             <div className="flex flex-col mt-12 gap-y-2 lg:h-[600px] xl:h-[700px] overflow-x-hidden overflow-y-auto">
+                                <h4 className="text-[14px] text-gray-400 p-2 flex items-cetner gap-x-2">
+                                    <History size={20} />
+                                    <span>Previous Chats</span>
+                                </h4>
                                 {chatList.map((c) => (
                                     <Link href={`/chat/${c.id}`} className="p-2 hover:bg-gray-300/10">
                                         <p>{c.prompt.length > 25 ? c.prompt.slice(0, 25) + "..." : c.prompt}</p>
@@ -78,11 +84,13 @@ const ChatPageLayout = ({ children }) => {
                 <div className="absolute bottom-0 left-0 w-full bg-slate-800 text-white">
                     <div className="px-4 py-2">
                         <AuthUserButton currentUser={currentUser} />
+
+
                     </div>
                 </div>
             </div>
 
-            <div className="w-10/12 fixed top-0 right-0 h-screen overflow-y-auto bg-[#f6f6f6] pt-10">
+            <div className="w-full lg:w-10/12 xl:w-10/12 fixed top-0 right-0 h-screen overflow-y-auto bg-[#f6f6f6] pt-10">
                 {children}
             </div>
         </div>

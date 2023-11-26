@@ -9,23 +9,31 @@ const SignInPage = () => {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true)
+        try {
+            let { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            })
 
-        let { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        })
 
+            if (error) {
+                alert("Something Went Wrong! Try Again Later.");
+                console.log(error)
+            }
 
-        if (error) {
-            alert("Something Went Wrong! Try Again Later.");
-            console.log(error)
-        }
-
-        if (data) {
-            console.log(data);
+            if (data) {
+                console.log(data);
+                router.push("/chat");
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setIsLoading(false);
         }
     }
     return (
@@ -44,7 +52,9 @@ const SignInPage = () => {
                     <h1 className="text-center text-[20px] text-slate-500 mb-5">Sign up for a new MindCase Account</h1>
                     <input type="email" placeholder="E-mail" className="p-4 outline-none border w-full" value={email} onChange={(e) => setEmail(e.target.value)} />
                     <input type="text" placeholder="Password" className="p-4 outline-none border w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <button type="submit" className="p-4 w-full rounded-sm bg-slate-500 hover:bg-slate-800 text-white text-center transition-all duration-300 ease-in-out">Sign In</button>
+                    <button type="submit" className="p-4 w-full rounded-sm bg-slate-500 hover:bg-slate-800 text-white text-center transition-all duration-300 ease-in-out" disabled={isLoading}>
+                        {isLoading ? "Please wait..." : "Sign In"}
+                    </button>
                 </form>
             </div>
         </>
