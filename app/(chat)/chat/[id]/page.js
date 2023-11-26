@@ -1,11 +1,12 @@
 "use client"
+import MessageCard from "@/components/cards/MessageCard/MessageCard";
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
 import SaveChats from "@/utils/save-chats";
 import axios from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SingleChatPage = ({ params: { id } }) => {
     const [currentUser, setCurrentUser] = useState(null);
@@ -13,6 +14,7 @@ const SingleChatPage = ({ params: { id } }) => {
     const [messages, setMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
     const router = useRouter();
+    const myMessage = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +33,10 @@ const SingleChatPage = ({ params: { id } }) => {
 
             setMessages((current) => [...current, userMessage, response.data]);
             setPrompt("");
+
+            if (myMessage && myMessage.current) {
+                myMessage.current.scrollTop = myMessage.current.scrollHeight;
+            }
 
             if (response.data) {
                 const { data, error } = await supabase.from("messages").update([{ messages: [...messages, userMessage, response.data] }]).eq('chat_id', id).select();
@@ -92,12 +98,20 @@ const SingleChatPage = ({ params: { id } }) => {
                     router.push("/chat")
                 }
 
-
             }
 
             fetchMessages();
         }
     }, [currentUser])
+
+    useEffect(() => {
+        if (messages.length) {
+            myMessage.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end"
+            })
+        }
+    }, [messages.length])
 
     return (
         <>
@@ -107,17 +121,8 @@ const SingleChatPage = ({ params: { id } }) => {
                         messages.length > 0 ? (
                             <div className="flex flex-col gap-y-4">
                                 {
-                                    messages.map((message) => (
-                                        <div className="flex gap-x-2 bg-white rounded-md p-2 shadow-lg">
-                                            {message.role === 'user' ? (
-                                                <div className="bg-gray-500 rounded-full w-[40px] h-[40px] flex items-center justify-center uppercase text-white">
-                                                    {currentUser.user_metadata.first_name[0]}{currentUser.user_metadata.last_name[0]}
-                                                </div>
-                                            ) : (
-                                                <Image src="/mindcase.jpg" width={40} height={40} alt="role" className="rounded-full" />
-                                            )}
-                                            <p>{message.content}</p>
-                                        </div>
+                                    messages.map((message, index) => (
+                                        <MessageCard key={index} message={message} currentUser={currentUser} />
                                     ))
                                 }
                             </div>
@@ -128,7 +133,13 @@ const SingleChatPage = ({ params: { id } }) => {
                     }
                 </div>
 
-                <ChatForms currentUser={currentUser} prompt={prompt} setPrompt={setPrompt} isGenerating={isGenerating} handleSubmit={handleSubmit} />
+
+                <div className="bg-[#f6f6f6] w-full">
+                    <div className="flex items-center justify-center">
+                        <ChatForms currentUser={currentUser} prompt={prompt} setPrompt={setPrompt} isGenerating={isGenerating} handleSubmit={handleSubmit} />
+                    </div>
+                </div>
+                <div ref={myMessage} />
             </div>
 
         </>

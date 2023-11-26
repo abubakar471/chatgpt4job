@@ -1,11 +1,12 @@
 "use client"
+import MessageCard from "@/components/cards/MessageCard/MessageCard";
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
 import SaveChats from "@/utils/save-chats";
 import axios from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const ChatMainPage = () => {
     const [currentUser, setCurrentUser] = useState(null);
@@ -13,6 +14,7 @@ const ChatMainPage = () => {
     const [messages, setMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
     const router = useRouter();
+    const myMessage = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +33,9 @@ const ChatMainPage = () => {
 
             setMessages((current) => [...current, userMessage, response.data]);
             setPrompt("");
+            if (myMessage && myMessage.current) {
+                myMessage.current.scrollTop = myMessage.current.scrollHeight;
+            }
 
             if (response.data) {
                 const savedChat = await SaveChats(prompt, currentUser);
@@ -43,7 +48,7 @@ const ChatMainPage = () => {
                     }
 
                     if (data) {
-                        console.log('saved messages : ', data);
+                        router.push(`/chat/${savedChat[0].id}`);
                     }
                 }
             }
@@ -57,7 +62,6 @@ const ChatMainPage = () => {
             }
         } finally {
             setIsGenerating(false);
-            router.refresh();
         }
     };
 
@@ -68,13 +72,22 @@ const ChatMainPage = () => {
             console.log("current user : ", user);
             if (user) {
                 setCurrentUser(user);
-            } else{
+            } else {
                 router.push("/sign-in");
             }
         }
 
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        if (messages.length) {
+            myMessage.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end"
+            })
+        }
+    }, [messages.length])
 
     return (
         <>
@@ -84,17 +97,8 @@ const ChatMainPage = () => {
                         messages.length > 0 ? (
                             <div className="flex flex-col gap-y-4">
                                 {
-                                    messages.map((message) => (
-                                        <div className="flex gap-x-2 bg-white rounded-md p-2 shadow-lg">
-                                            {message.role === 'user' ? (
-                                                <div className="bg-gray-500 rounded-full w-[40px] h-[40px] flex items-center justify-center uppercase text-white">
-                                                    {currentUser.user_metadata.first_name[0]}{currentUser.user_metadata.last_name[0]}
-                                                </div>
-                                            ) : (
-                                                <Image src="/mindcase.jpg" width={40} height={40} alt="role" className="rounded-full" />
-                                            )}
-                                            <p>{message.content}</p>
-                                        </div>
+                                    messages.map((message, index,) => (
+                                        <MessageCard key={index} message={message} currentUser={currentUser} />
                                     ))
                                 }
                             </div>
@@ -107,11 +111,13 @@ const ChatMainPage = () => {
                     }
                 </div>
 
-                <div className="fixed bottom-0 bg-[#f6f6f6] w-full">
-                    <div className="w-[800px] flex items-center justify-center">
+                <div className="bg-[#f6f6f6] w-full">
+                    <div className="flex items-center justify-center">
                         <ChatForms currentUser={currentUser} prompt={prompt} setPrompt={setPrompt} isGenerating={isGenerating} handleSubmit={handleSubmit} />
                     </div>
                 </div>
+
+                <div ref={myMessage} />
             </div>
 
         </>
