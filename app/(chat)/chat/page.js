@@ -68,6 +68,8 @@ const ChatMainPage = () => {
             console.log("current user : ", user);
             if (user) {
                 setCurrentUser(user);
+            } else{
+                router.push("/sign-in");
             }
         }
 

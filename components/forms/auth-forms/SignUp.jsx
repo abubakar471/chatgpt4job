@@ -6,36 +6,40 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const SignInForm = () => {
+const SignUpForm = () => {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [formError, setFormError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true)
-        try {
-            let { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            })
+
+        let { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                },
+            },
+        })
 
 
-            if (error) {
-                setFormError(error.message);
-            }
 
-            if (data.user) {
-                setFormError(null);
-                console.log(data);
-                router.push("/chat");
-            }
-        } catch (err) {
-            console.log(err);
-        } finally {
-            setIsLoading(false);
+        if (error) {
+            setFormError(error.message);
+            console.log(error)
+        }
+
+        if (data) {
+            console.log(data);
+
+            router.push("/account/confirm-email");
         }
     }
 
@@ -65,19 +69,22 @@ const SignInForm = () => {
                             className="rounded-lg"
                         />
                     </div>
-                    <h1 className="text-center text-[20px] text-slate-500 mb-5">Sign in with your MindCase Account</h1>
-                    <input type="email" placeholder="E-mail" className="p-4 outline-none border w-full" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <input type="text" placeholder="Password" className="p-4 outline-none border w-full" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <h1 className="text-center text-[20px] text-slate-500 mb-5">Sign up for a new MindCase Account</h1>
+                    <input type="text" placeholder="First Name" className="p-4 outline-none border w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    <input type="text" placeholder="Last Name" className="p-4 outline-none border w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    <input type="email" placeholder="E-mail" className="p-4 outline-none border w-full" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input type="text" placeholder="Password" className="p-4 outline-none border w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
 
                     {formError && (
                         <p className="text-red-400 font-semibold">{formError}</p>
                     )}
 
                     <button type="submit" className="p-4 w-full rounded-sm bg-slate-500 hover:bg-slate-800 text-white text-center transition-all duration-300 ease-in-out" disabled={isLoading}>
-                        {isLoading ? "Please wait..." : "Sign In"}
+                        {isLoading ? "Please wait..." : "Sign Up"}
                     </button>
+
                     <div className="flex items-center justify-center text-black">
-                        <p>New to Mindcase | <Link href="/sign-up" className="underline">Create A New Account Instead</Link></p>
+                        <p>Already have an account | <Link href="/sign-in" className="underline">Sign In Instead</Link></p>
                     </div>
                 </form>
             </div>
@@ -85,4 +92,4 @@ const SignInForm = () => {
     )
 }
 
-export default SignInForm;
+export default SignUpForm;

@@ -1,3 +1,5 @@
+"use client"
+
 import {
     Dialog,
     DialogContent,
@@ -9,8 +11,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Settings } from "lucide-react"
 import supabase from "@/config/supabaseClient"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 const SettingsModal = ({ currentUser }) => {
+    const router = useRouter()
+    const [active, setActive] = useState(1);
+
     const deleteChats = async () => {
         const { error } = await supabase
             .from('chats')
@@ -31,6 +38,8 @@ const SettingsModal = ({ currentUser }) => {
         if (error) {
             console.log("Something Went Wrong While Deleting Messages. Please Try Again Later.", error);
         }
+
+
     }
     const handleClearAll = async (e) => {
         e.preventDefault();
@@ -42,6 +51,20 @@ const SettingsModal = ({ currentUser }) => {
             console.log("error in handleClearAl  function", err);
         } finally {
             window.location.reload();
+        }
+    }
+
+    const handleDeleteUser = async (e) => {
+        e.preventDefault();
+
+        const { data, error } = await supabase.auth.admin.deleteUser(String(currentUser.id));
+        if (error) {
+            alert("Something went wrong while deleting your account");
+            console.log(error)
+        }
+
+        if (data) {
+            window.location.href = "/sign-up"
         }
     }
 
@@ -60,17 +83,33 @@ const SettingsModal = ({ currentUser }) => {
                         <hr className="mt-2" />
                     </DialogTitle>
                     <DialogDescription>
-                        <div className="flex gap-x-2 items-center justify-items-start h-[100px] mt-4">
-                            <div className="w-2/12">
-                                <div className="bg-gray-500/30 text-center px-2 py-1 rounded-sm">General</div>
+                        <div className="flex gap-x-2 h-[100px] mt-4">
+                            <div className="w-2/12 flex flex-col gap-y-2">
+                                <div onClick={() => setActive(1)} className={`${active === 1 && "bg-gray-500/30"} hover:bg-gray-200 transition-all duration-150 ease-in-out text-center px-2 py-1 rounded-sm cursor-pointer`}>General</div>
+                                <div onClick={() => setActive(2)} className={`${active === 2 && "bg-gray-500/30"} hover:bg-gray-200 transition-all duration-150 ease-in-out text-center px-2 py-1 rounded-sm cursor-pointer`}>Profile</div>
                             </div>
 
                             <div className="w-10/12 pl-4 flex items-center justify-between">
-                                <p>Clear All Chat History</p>
+                                {active === 1 && (
+                                    <>
+                                        <p>Clear All Chat History</p>
 
-                                <form onSubmit={handleClearAll}>
-                                    <button type="submit" className="p-2 rounded-md bg-red-600 text-white">Clear</button>
-                                </form>
+                                        <form onSubmit={handleClearAll}>
+                                            <button type="submit" className="p-2 rounded-md bg-red-600 text-white">Clear</button>
+                                        </form>
+                                    </>
+                                )}
+
+
+                                {active === 2 && (
+                                    <>
+                                        <p>Delete Account</p>
+
+                                        <form onSubmit={handleDeleteUser}>
+                                            <button type="submit" className="p-2 rounded-md bg-red-600 text-white">Delete</button>
+                                        </form>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </DialogDescription>
