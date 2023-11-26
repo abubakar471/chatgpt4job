@@ -3,13 +3,16 @@
 import AuthUserButton from "@/components/AuthUserButton/AuthUserButton"
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient"
+import axios from "axios"
 import { ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 const ChatPageLayout = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
+    const [chatList, setChatList] = useState([]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -20,8 +23,32 @@ const ChatPageLayout = ({ children }) => {
             }
         }
 
+
         fetchUser();
+
     }, []);
+
+    useEffect(() => {
+        const fetchChatList = async () => {
+            const { data, error } = await supabase
+                .from('chats')
+                .select()
+                .eq('user_id', currentUser.id)
+
+            if (error) {
+                alert("something went wrong fetching your chats")
+                console.log("error fetching smoothies : ", error);
+            }
+
+            if (data) {
+                console.log('chat list : ', data)
+                setChatList(data);
+            }
+        }
+        if (currentUser) {
+            fetchChatList();
+        }
+    }, [currentUser])
 
     return (
         <div className="w-full flex">
@@ -34,6 +61,10 @@ const ChatPageLayout = ({ children }) => {
                         </div>
                         <ExternalLink />
                     </Link>
+
+                    {
+
+                    }
                 </div>
 
                 <div className="text-white">
@@ -41,15 +72,8 @@ const ChatPageLayout = ({ children }) => {
                 </div>
             </div>
 
-            <div className="w-10/12 fixed top-0 right-0 h-screen overflow-y-auto bg-[#f6f6f6]">
-                <div className="flex flex-col w-[50%] mx-auto h-full">
-                    <div className="flex-grow">
-                        {children}
-                    </div>
-
-                    <ChatForms currentUser={currentUser} />
-                </div>
-
+            <div className="w-10/12 fixed top-0 right-0 h-screen overflow-y-auto bg-[#f6f6f6] pt-10">
+                {children}
             </div>
         </div>
     )
