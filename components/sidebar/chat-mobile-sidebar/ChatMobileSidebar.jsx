@@ -1,17 +1,13 @@
 "use client"
 
 import AuthUserButton from "@/components/AuthUserButton/AuthUserButton"
-import ChatForms from "@/components/forms/chat-forms/ChatForms"
-import ChatPageNavbar from "@/components/navbar/ChatPageNavbar"
 import supabase from "@/config/supabaseClient"
-import axios from "axios"
-import { Edit, ExternalLink, History } from "lucide-react"
+import { Edit, History } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const ChatPageLayout = ({ children }) => {
+const ChatMobileSidebar = ({ open, setOpen }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [chatList, setChatList] = useState([]);
 
@@ -52,18 +48,17 @@ const ChatPageLayout = ({ children }) => {
     }, [currentUser])
 
     return (
-        <>
-            <ChatPageNavbar />
-            <div className="w-full flex overflow-hidden">
+        <div className="bg-gray-500/20 w-full h-screen fixed top-10 left-0 z-50">
+            <div className="bg-slate-700 w-[350px] h-full py-4">
+                <div className="w-full flex flex-col overflow-hidden relative">
 
-                <div className="w-2/12  fixed left-0 top-0 h-screen bg-slate-800 text-gray-200 hidden lg:flex xl:flex flex-col py-4">
-                    <div className="flex-grow px-4">
-                        <Link href="/chat" className="flex items-center justify-between gap-x-2 hover:bg-gray-300/10 transition-all duration-300 ease-in-out rounded-md p-2">
+                    <div className="grow px-4 h-full">
+                        <Link onClick={() => setOpen(false)} href="/chat" className="flex items-center justify-between gap-x-2 hover:bg-gray-300/10 transition-all duration-300 ease-in-out rounded-md p-2">
                             <div className="flex items-center gap-x-2">
                                 <Image src="/mindcase.jpg" width={30} height={30} className="rounded-full" />
                                 <p className="text-gray-200">New Chat</p>
                             </div>
-                            <Edit />
+                            <Edit className="text-gray-200" />
                         </Link>
 
 
@@ -76,30 +71,26 @@ const ChatPageLayout = ({ children }) => {
                                         <span>Previous Chats</span>
                                     </h4>
                                     {chatList.map((c) => (
-                                        <Link href={`/chat/${c.id}`} className="p-2 hover:bg-gray-300/10">
+                                        <Link onClick={() => setOpen(false)} href={`/chat/${c.id}`} className="p-2 hover:bg-gray-300/10 text-white">
                                             <p>{c.prompt.length > 25 ? c.prompt.slice(0, 25) + "..." : c.prompt}</p>
                                         </Link>
                                     ))}
                                 </div>
                             )
                         }
-                    </div>
 
-                    <div className="absolute bottom-0 left-0 w-full bg-slate-800 text-white">
-                        <div className="px-4 py-2">
-                            <AuthUserButton currentUser={currentUser} />
-
-
+                        <div className="fixed bottom-2 text-white z-50">
+                            <div className="px-2 py-2">
+                                <AuthUserButton currentUser={currentUser} />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="w-full lg:w-10/12 xl:w-10/12 fixed top-0 right-0 h-screen overflow-y-auto bg-[#f6f6f6] pt-14">
-                    {children}
+
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 
-export default ChatPageLayout
+export default ChatMobileSidebar

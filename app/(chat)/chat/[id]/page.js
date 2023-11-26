@@ -115,7 +115,7 @@ const SingleChatPage = ({ params: { id } }) => {
 
     return (
         <>
-            <div className="flex flex-col w-[50%] mx-auto h-full">
+            <div className="flex flex-col w-[90%] md:w-[70%] lg:w-[50%] xl:w-[50%] mx-auto h-full">
                 <div className="flex-grow">
                     {
                         messages.length > 0 ? (
