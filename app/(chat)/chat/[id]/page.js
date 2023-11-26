@@ -33,19 +33,16 @@ const SingleChatPage = ({ params: { id } }) => {
             setPrompt("");
 
             if (response.data) {
-                const savedChat = await SaveChats(prompt, currentUser);
+                const { data, error } = await supabase.from("messages").update([{ messages: [...messages, userMessage, response.data] }]).eq('chat_id', id).select();
 
-                if (savedChat.length > 0) {
-                    const { data, error } = await supabase.from("messages").insert([{ user_id: currentUser.id, chat_id: savedChat[0].id, messages: [...messages, userMessage, response.data] }]).select();
-
-                    if (error) {
-                        console.log(error);
-                    }
-
-                    if (data) {
-                        console.log('saved messages : ', data);
-                    }
+                if (error) {
+                    console.log(error);
                 }
+
+                if (data) {
+                    console.log('saved messages : ', data);
+                }
+
             }
 
         } catch (error) {
@@ -87,10 +84,14 @@ const SingleChatPage = ({ params: { id } }) => {
                     router.push("/chat");
                 }
 
-                if (data) {
+                if (data.length > 0) {
                     console.log("single page chat : ", data);
                     setMessages(data[0].messages);
+                } else {
+                    router.push("/chat")
                 }
+
+
             }
 
             fetchMessages();
@@ -121,8 +122,6 @@ const SingleChatPage = ({ params: { id } }) => {
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center">
-                                <Image src="/mindcase.jpg" width={80} height={80} alt="mindcase" className="rounded-md" />
-                                <h1 className="text-[30px] font-semibold">How Can I Help You Today?</h1>
                             </div>
                         )
                     }
