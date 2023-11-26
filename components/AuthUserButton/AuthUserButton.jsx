@@ -1,23 +1,8 @@
 "use client"
 
-import supabase from "@/config/supabaseClient"
 import { CircleUser } from "lucide-react"
-import { useEffect, useState } from "react"
 
-const AuthUserButton = () => {
-    const [currentUser, setCurrentUser] = useState(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            console.log("current user : ", user);
-            if (user) {
-                setCurrentUser(user);
-            }
-        }
-
-        fetchUser();
-    }, []);
+const AuthUserButton = ({ currentUser }) => {
 
     return (
         <>
