@@ -1,6 +1,7 @@
 "use client"
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
+import SaveChats from "@/utils/save-chats";
 import axios from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
@@ -32,16 +33,21 @@ const SingleChatPage = ({ params: { id } }) => {
             setPrompt("");
 
             if (response.data) {
-                const { data, error } = await supabase.from("chats").insert([{ prompt: prompt, user_id: String(currentUser.id) }]);
+                const savedChat = await SaveChats(prompt, currentUser);
 
-                if (error) {
-                    console.log(error);
-                }
+                if (savedChat.length > 0) {
+                    const { data, error } = await supabase.from("messages").insert([{ user_id: currentUser.id, chat_id: savedChat[0].id, messages: [...messages, userMessage, response.data] }]).select();
 
-                if (data) {
-                    console.log(data);
+                    if (error) {
+                        console.log(error);
+                    }
+
+                    if (data) {
+                        console.log('saved messages : ', data);
+                    }
                 }
             }
+
         } catch (error) {
             if (error?.response?.status === 403) {
                 alert("you are unauthorized");
@@ -69,10 +75,27 @@ const SingleChatPage = ({ params: { id } }) => {
     }, []);
 
     useEffect(() => {
-        if(currentUser) {
-            
+        if (currentUser) {
+            const fetchMessages = async () => {
+                const { data, error } = await supabase.from('messages')
+                    .select()
+                    .eq('chat_id', id);
+
+                if (error) {
+                    alert("something went wrong");
+                    console.log(error);
+                    router.push("/chat");
+                }
+
+                if (data) {
+                    console.log("single page chat : ", data);
+                    setMessages(data[0].messages);
+                }
+            }
+
+            fetchMessages();
         }
-    },[currentUser])
+    }, [currentUser])
 
     return (
         <>
@@ -99,7 +122,7 @@ const SingleChatPage = ({ params: { id } }) => {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center">
                                 <Image src="/mindcase.jpg" width={80} height={80} alt="mindcase" className="rounded-md" />
-                                <h1 className="text-[30px] font-semibold">Single Chat Page {id} </h1>
+                                <h1 className="text-[30px] font-semibold">How Can I Help You Today?</h1>
                             </div>
                         )
                     }
