@@ -1,13 +1,12 @@
 "use client"
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
-import SaveChats from "@/utils/save-chats";
 import axios from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const ChatMainPage = () => {
+const SingleChatPage = ({ params: { id } }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [prompt, setPrompt] = useState("");
     const [messages, setMessages] = useState([]);
@@ -33,21 +32,16 @@ const ChatMainPage = () => {
             setPrompt("");
 
             if (response.data) {
-                const savedChat = await SaveChats(prompt, currentUser);
+                const { data, error } = await supabase.from("chats").insert([{ prompt: prompt, user_id: String(currentUser.id) }]);
 
-                if (savedChat.length > 0) {
-                    const { data, error } = await supabase.from("messages").insert([{user_id: currentUser.id, chat_id: savedChat[0].id, messages: [...messages, userMessage, response.data] }]).select();
+                if (error) {
+                    console.log(error);
+                }
 
-                    if (error) {
-                        console.log(error);
-                    }
-
-                    if (data) {
-                        console.log('saved messages : ', data);
-                    }
+                if (data) {
+                    console.log(data);
                 }
             }
-
         } catch (error) {
             if (error?.response?.status === 403) {
                 alert("you are unauthorized");
@@ -74,6 +68,12 @@ const ChatMainPage = () => {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        if(currentUser) {
+            
+        }
+    },[currentUser])
+
     return (
         <>
             <div className="flex flex-col w-[50%] mx-auto h-full">
@@ -99,7 +99,7 @@ const ChatMainPage = () => {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center">
                                 <Image src="/mindcase.jpg" width={80} height={80} alt="mindcase" className="rounded-md" />
-                                <h1 className="text-[30px] font-semibold">How Can I Help You Today?</h1>
+                                <h1 className="text-[30px] font-semibold">Single Chat Page {id} </h1>
                             </div>
                         )
                     }
@@ -113,4 +113,4 @@ const ChatMainPage = () => {
 }
 
 
-export default ChatMainPage
+export default SingleChatPage

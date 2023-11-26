@@ -63,7 +63,15 @@ const ChatPageLayout = ({ children }) => {
                     </Link>
 
                     {
-
+                        chatList.length > 0 && (
+                            <div className="flex flex-col mt-12 gap-y-2">
+                                {chatList.map((c) => (
+                                    <Link href={`/chat/${c.id}`} className="p-2 hover:bg-gray-300/10">
+                                        <p>{c.prompt.length > 25 ? c.prompt.slice(0, 25) + "..." : c.prompt}</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        )
                     }
                 </div>
 
