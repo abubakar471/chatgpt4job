@@ -76,7 +76,8 @@ const SingleChatPage = ({ params: { id } }) => {
             const fetchMessages = async () => {
                 const { data, error } = await supabase.from('messages')
                     .select()
-                    .eq('chat_id', id);
+                    .eq('chat_id', id)
+                    .eq('user_id', currentUser.id);
 
                 if (error) {
                     alert("something went wrong");
