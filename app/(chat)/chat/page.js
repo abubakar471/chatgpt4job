@@ -1,4 +1,5 @@
 "use client"
+import Loader from "@/components/Loader/Loader";
 import MessageCard from "@/components/cards/MessageCard/MessageCard";
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
@@ -31,12 +32,6 @@ const ChatMainPage = () => {
             });
             console.log(response.data);
 
-            setMessages((current) => [...current, userMessage, response.data]);
-            setPrompt("");
-            if (myMessage && myMessage.current) {
-                myMessage.current.scrollTop = myMessage.current.scrollHeight;
-            }
-
             if (response.data) {
                 const savedChat = await SaveChats(prompt, currentUser);
 
@@ -52,16 +47,21 @@ const ChatMainPage = () => {
                     }
                 }
             }
+            setPrompt("");
+            if (myMessage && myMessage.current) {
+                myMessage.current.scrollTop = myMessage.current.scrollHeight;
+            }
+
 
         } catch (error) {
             if (error?.response?.status === 403) {
                 alert("you are unauthorized");
                 console.log(error);
+                setIsGenerating(false);
             } else {
                 console.log(error);
+                setIsGenerating(false);
             }
-        } finally {
-            setIsGenerating(false);
         }
     };
 
@@ -94,7 +94,7 @@ const ChatMainPage = () => {
             <div className="relative flex flex-col w-[90%] md:w-[70%] lg:w-[50%] xl:w-[50%] mx-auto h-full ">
                 <div className="flex-grow">
                     {
-                        messages.length > 0 ? (
+                        (messages.length > 0 && !isGenerating) ? (
                             <div className="flex flex-col gap-y-4">
                                 {
                                     messages.map((message, index,) => (
@@ -103,12 +103,20 @@ const ChatMainPage = () => {
                                 }
                             </div>
                         ) : (
-                            <div className="h-full flex flex-col items-center justify-center">
-                                <Image src="/mindcase.jpg" width={80} height={80} alt="mindcase" className="rounded-md" />
-                                <h1 className="text-[30px] font-semibold">How Can I Help You Today?</h1>
-                            </div>
+
+                            isGenerating ? (
+                                <div className="h-full">
+                                    <Loader />
+                                </div>
+                            ) : (
+                                < div className="h-full flex flex-col items-center justify-center">
+                                    <Image src="/mindcase.jpg" width={80} height={80} alt="mindcase" className="rounded-md" />
+                                    <h1 className="text-[30px] font-semibold">How Can I Help You Today?</h1>
+                                </div>
+                            )
                         )
                     }
+
                 </div>
 
                 <div className="bg-[#f6f6f6] w-full">
@@ -118,7 +126,7 @@ const ChatMainPage = () => {
                 </div>
 
                 <div ref={myMessage} />
-            </div>
+            </div >
 
         </>
     )

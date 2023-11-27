@@ -1,4 +1,5 @@
 "use client"
+import Loader from "@/components/Loader/Loader";
 import MessageCard from "@/components/cards/MessageCard/MessageCard";
 import ChatForms from "@/components/forms/chat-forms/ChatForms"
 import supabase from "@/config/supabaseClient";
@@ -118,7 +119,7 @@ const SingleChatPage = ({ params: { id } }) => {
             <div className="flex flex-col w-[90%] md:w-[70%] lg:w-[50%] xl:w-[50%] mx-auto h-full">
                 <div className="flex-grow">
                     {
-                        messages.length > 0 ? (
+                        messages.length > 0 && !isGenerating ? (
                             <div className="flex flex-col gap-y-4">
                                 {
                                     messages.map((message, index) => (
@@ -128,6 +129,12 @@ const SingleChatPage = ({ params: { id } }) => {
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center">
+                                {isGenerating && (
+                                    <div className="h-full">
+                                        <Loader />
+                                    </div>
+                                )
+                                }
                             </div>
                         )
                     }
