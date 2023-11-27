@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import Typewriter from "typewriter-effect"
 
 export default async function Home() {
   const router = useRouter();
@@ -24,20 +25,41 @@ export default async function Home() {
   }, [])
 
   return (
-    <div className='w-full flex'>
-      <div className='w-7/12 px-10 py-4'>
+    <div className='w-full flex flex-col lg:flex-row xl:flex-row'>
+      <div className='w-7/12 px-10 py-8 lg:py-4 xl:py-4'>
         <nav className="">
           <div className="text-[28px]">
             ChatGPT<span className="font-semibold text-orange-500">4Job</span>
           </div>
         </nav>
 
-        <div className='mt-40'>
-          <h3 className='text-[40px] text-orange-500'>Ask for any information & get the most accurate answer for your prompt...</h3>
+        <div className='mt-40 w-full flex flex-col gap-x-2'>
+          <h2 className='font-semibold text-[50px]'>Why MindCase ? </h2>
+          <h3 className='text-[45px] font-semibold text-orange-500'>
+            <Typewriter
+              options={{
+                strings: [
+                  "Contextual Search",
+                  "Clause Recommendation",
+                  "Contract Compliance",
+                  "Conversational Interface",
+                  "Code Generation"
+                ],
+                autoStart: true,
+                loop: true
+              }}
+            />
+          </h3>
         </div>
       </div>
 
-      <div className='w-5/12 min-h-screen bg-[#333] flex flex-col'>
+      <div style={{
+        background: `url("/bg2.jpg") rgba(0,0,0,0.6)`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundBlendMode: "darken",
+      }} className='w-full lg:w-5/12 xl:w-5/12 min-h-screen bg-[#333] flex flex-col'>
         <div className='flex-grow flex items-center justify-center gap-x-4'>
 
           <Link href="/sign-in" className='px-10 py-4 bg-blue-500 text-white rounded-md text-[20px]'>Sign In</Link>
