@@ -53,7 +53,7 @@ const ChatMainPage = () => {
             const response = await axios.post("/api/create-prompt", {
                 messages: newMessages,
             });
-            console.log(response.data);
+            console.log('client data : ', response.data);
 
             if (response.data) {
                 const savedChat = await SaveChats(prompt, currentUser);
